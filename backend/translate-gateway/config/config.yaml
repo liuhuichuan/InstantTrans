@@ -1,0 +1,45 @@
+base_url: "https://open.bigmodel.cn/api/paas/v4/"
+api_key: "*****"
+model: "GLM-4-Flash-250414"
+timeout_seconds: 20
+
+nats:
+  url: "nats://localhost:4222"
+  subject_request: "translate.request"
+  subject_result: "translate.result"
+  queue_group: "translator-workers"
+
+max_retries: 3
+
+redis:
+  mode: "single"   # 可选：single / sentinel / cluster
+  single:
+    host: "127.0.0.1"
+    port: 6379
+    password: "123456"
+    db: 0
+  sentinel:
+    master_name: "mymaster"
+    nodes:
+      - "127.0.0.1:26379"
+      - "127.0.0.1:26380"
+      - "127.0.0.1:26381"
+    password: ""
+    db: 0
+  cluster:
+    nodes:
+      - "10.0.0.1:6379"
+      - "10.0.0.2:6379"
+      - "10.0.0.3:6379"
+    password: ""
+
+rate_limit:
+  mode: "redis_lua"
+  limit: 80            # 每个 IP 每分钟最大请求数
+  window: "1m"
+  global_limit: 2000   # 全局限流上限
+  whitelist:           # 可选白名单（即使全局限流触发也可放行）
+    - "ip:127.0.0.1"
+    - "service:internal"
+
+
